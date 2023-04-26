@@ -17,6 +17,9 @@ const favorites = {
     ADD_ITEM_IN_LIST(state, item) {
       Vue.set(state.listFavoriteCocktails, item.id, item);
     },
+    DELETE_ITEM_IN_LIST(state, id) {
+      Vue.delete(state.listFavoriteCocktails, id);
+    },
     SET_SCROLL_TOP(state, value) {
       state.scrollTop = value;
     },
@@ -36,6 +39,9 @@ const favorites = {
     },
     addItemInList({ commit }, item) {
       commit("ADD_ITEM_IN_LIST", item);
+    },
+    deleteItemInList({ commit }, id) {
+      commit("DELETE_ITEM_IN_LIST", id);
     },
     resetLocalStorage({ state }) {
       const jsonObj = JSON.stringify(state.listFavoriteCocktails);

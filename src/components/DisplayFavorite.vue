@@ -16,7 +16,9 @@
             >Узнать больше
           </router-link>
 
-          <div class="card__delete-favorites">Удалить из избранного</div>
+          <div class="card__delete-favorites" @click="deleteAndReser(card)">
+            Удалить из избранного
+          </div>
         </div>
       </div>
     </div>
@@ -31,14 +33,25 @@ export default {
   data: () => ({}),
   props: {},
   methods: {
-    ...mapActions("favorites", ["setScrollTopFC"]),
+    ...mapActions("favorites", [
+      "setScrollTopFC",
+      "resetLocalStorage",
+      "deleteItemInList",
+    ]),
+    ...mapActions("allCoctails", ["resetFavoriteInList"]),
+
     scroll() {
       const valueScrollTop = this.$refs.dispalyList.scrollTop;
       this.setScrollTopFC(valueScrollTop);
     },
+    deleteAndReser(card) {
+      this.resetFavoriteInList({ id: Number(card.id), value: false });
+      this.deleteItemInList(Number(card.id));
+      this.resetLocalStorage();
+    },
   },
   computed: {
-    ...mapGetters("favorites", ["get_list_FC","scroll_top_FC"]),
+    ...mapGetters("favorites", ["get_list_FC", "scroll_top_FC"]),
   },
   mounted() {
     this.$refs.dispalyList.scrollTop = this.scroll_top_FC;

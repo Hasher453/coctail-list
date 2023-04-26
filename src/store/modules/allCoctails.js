@@ -165,16 +165,18 @@ const allCoctails = {
       "z",
     ],
     currentLetter: 0,
-    allCoctailsList: [],
+    allCoctailsList: {},
     scrollTop: 0,
   },
   getters: {
-    all_coctails_list: ({ allCoctailsList }) => allCoctailsList,
+    all_coctails_list: ({ allCoctailsList }) => Object.values(allCoctailsList),
     scroll_top: ({ scrollTop }) => Number(scrollTop),
   },
   mutations: {
     ADD_COCTAILS_LIST(state, coctailsList) {
-      state.allCoctailsList = [...state.allCoctailsList, ...coctailsList];
+      // state.allCoctailsList = [...state.allCoctailsList, ...coctailsList];
+
+      state.allCoctailsList = { ...state.allCoctailsList, ...coctailsList };
     },
     NEXT_LETTER(state) {
       state.currentLetter += 1;
@@ -183,7 +185,8 @@ const allCoctails = {
       state.scrollTop = value;
     },
     RESET_FAVORITE_IN_LIST(state, { id, value }) {
-      
+      // Vue.delete(state.buyListUnactive, id);
+      state.allCoctailsList[id].favorite = value;
     },
   },
   actions: {
@@ -199,7 +202,12 @@ const allCoctails = {
 
         const normalArray = await normalizationListCoctails(response);
 
-        commit("ADD_COCTAILS_LIST", normalArray);
+        const objNormalArray = normalArray.reduce((acc, cocktail) => {
+          acc[cocktail.id] = cocktail;
+          return acc;
+        }, {});
+
+        commit("ADD_COCTAILS_LIST", objNormalArray);
       } catch (err) {
         console.log(err);
       }

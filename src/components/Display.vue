@@ -21,10 +21,18 @@
             >Узнать больше
           </router-link>
 
-          <div class="card__add-favorites" @click="addItemInFC(card)" v-if="!card.favorite">
+          <div
+            class="card__add-favorites"
+            @click="addItemInFC(card)"
+            v-if="!card.favorite"
+          >
             Добавить в избранное
           </div>
-          <div class="card__delete-favorites" v-if="card.favorite">
+          <div
+            class="card__delete-favorites"
+            v-if="card.favorite"
+            @click="deleteItemInFC(card)"
+          >
             Удалить из избранного
           </div>
         </div>
@@ -44,8 +52,16 @@ export default {
   }),
   props: {},
   methods: {
-    ...mapActions("allCoctails", ["fetchListCoctails", "setScrollTop"]),
-    ...mapActions("favorites", ["addItemInList", "resetLocalStorage"]),
+    ...mapActions("allCoctails", [
+      "fetchListCoctails",
+      "setScrollTop",
+      "resetFavoriteInList",
+    ]),
+    ...mapActions("favorites", [
+      "addItemInList",
+      "resetLocalStorage",
+      "deleteItemInList",
+    ]),
     async scroll() {
       const valueScrollTop = this.$refs.dispalyList.scrollTop;
       this.setScrollTop(valueScrollTop);
@@ -60,6 +76,12 @@ export default {
     },
     addItemInFC(item) {
       this.addItemInList(item);
+      this.resetLocalStorage();
+      this.resetFavoriteInList({ id: item.id, value: true });
+    },
+    deleteItemInFC(item) {
+      this.resetFavoriteInList({ id: Number(item.id), value: false });
+      this.deleteItemInList(Number(item.id));
       this.resetLocalStorage();
     },
   },

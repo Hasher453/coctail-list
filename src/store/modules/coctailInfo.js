@@ -87,6 +87,9 @@ const allCoctails = {
     CLEAR_INFO_COCKTAIL(state) {
       state.infoCocktail = {};
     },
+    RESET_DATA_FAVORITE(state, value) {
+      state.infoCocktail.favorite = value;
+    },
   },
   actions: {
     async fetchInfoCoctailById({ commit, state }, id) {
@@ -104,6 +107,9 @@ const allCoctails = {
     },
     clearInfoCoctail({ commit }) {
       commit("CLEAR_INFO_COCKTAIL");
+    },
+    resetFavorite({ commit }, value) {
+      commit("RESET_DATA_FAVORITE", value);
     },
   },
 };

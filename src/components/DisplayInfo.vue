@@ -22,7 +22,11 @@
         >
           В избранное
         </div>
-        <div class="favorites-button" v-if="coctail_info.favorite">
+        <div
+          class="favorites-button"
+          v-if="coctail_info.favorite"
+          @click="deleteItemInFC"
+        >
           Удалить из избранного
         </div>
       </div>
@@ -67,10 +71,27 @@ export default {
   }),
 
   methods: {
-    ...mapActions("coctailInfo", ["fetchInfoCoctailById", "clearInfoCoctail"]),
-    ...mapActions("favorites", ["addItemInList", "resetLocalStorage"]),
+    ...mapActions("coctailInfo", [
+      "fetchInfoCoctailById",
+      "clearInfoCoctail",
+      "resetFavorite",
+    ]),
+    ...mapActions("favorites", [
+      "addItemInList",
+      "resetLocalStorage",
+      "deleteItemInList",
+    ]),
+    ...mapActions("allCoctails", ["resetFavoriteInList"]),
     addItemInFC() {
+      this.resetFavoriteInList({ id: this.coctail_info.id, value: true });
+      this.resetFavorite(true);
       this.addItemInList(this.coctail_info);
+      this.resetLocalStorage();
+    },
+    deleteItemInFC() {
+      this.resetFavoriteInList({ id: this.coctail_info.id, value: false });
+      this.resetFavorite(false);
+      this.deleteItemInList(this.coctail_info.id);
       this.resetLocalStorage();
     },
   },

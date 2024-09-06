@@ -6,7 +6,7 @@
         <div class="card__img">
           <img :src="card.img" alt="" />
         </div>
-        <div class="card__name">{{ card.name }}</div>
+        <div class="card__name"><span>{{ card.name }} </span></div>
         <div class="card__brn-container">
           <!-- <div class="card__learn-more">Узнать больше</div> -->
 
@@ -21,6 +21,7 @@
           </div>
         </div>
       </div>
+      <div class="card" v-if="!get_list_FC.length">Ваш список пуст, добавьте что нибудь ...</div>
     </div>
   </div>
 </template>
@@ -102,7 +103,7 @@ btn-card-delete()
   max-width 233px
   padding 10px
   background-color #3a3a3a
-  max-height: 370px
+  height: 400px
   &__img
     margin-bottom 10px
     img
@@ -112,6 +113,9 @@ btn-card-delete()
   &__name
     margin-bottom 10px
     font-size: 19px
+    height: 50px;
+    display: flex;
+    align-items: center;
   &__learn-more
     btn-card()
     margin-bottom 10px

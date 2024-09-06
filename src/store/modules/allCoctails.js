@@ -1,6 +1,6 @@
-import Vue from "vue";
-import axios from "../../plugins/axios/index";
-import translate from "translate";
+import Vue from 'vue';
+import axios from '../../plugins/axios/index';
+import translate from 'translate';
 
 /*
 idDrink - id
@@ -62,23 +62,23 @@ async function normalizationListCoctails(arrayCoctails) {
     try {
       const str = JSON.stringify(coctail);
       const ruText = await translate(str, {
-        from: "en",
-        to: "ru",
+        from: 'en',
+        to: 'ru',
       });
       let ruObjCoctail = JSON.parse(ruText);
 
-      let strIngredients = "";
+      let strIngredients = '';
       for (let i = 1; i < 16; i++) {
         let strIngredient = ruObjCoctail[`strIngredient${i}`];
         let strMeasure = coctail[`strMeasure${i}`];
         if (!strIngredient && !strMeasure) break;
-        if (!strIngredient) strIngredient = "";
-        if (!strMeasure) strMeasure = "";
+        if (!strIngredient) strIngredient = '';
+        if (!strMeasure) strMeasure = '';
         strMeasure.trim();
         strIngredients = strIngredients.concat(
-          "; ",
+          '; ',
           strMeasure,
-          " ",
+          ' ',
           strIngredient
         );
       }
@@ -86,7 +86,7 @@ async function normalizationListCoctails(arrayCoctails) {
 
       //перевод от Alcoholic к true false
       let alcoholic = null;
-      coctail.strAlcoholic === "Alcoholic"
+      coctail.strAlcoholic === 'Alcoholic'
         ? (alcoholic = true)
         : (alcoholic = false);
 
@@ -94,7 +94,7 @@ async function normalizationListCoctails(arrayCoctails) {
         id: ruObjCoctail.idDrink,
         alcoholic,
         name: ruObjCoctail.strDrink,
-        img: coctail.strDrinkThumb.replace(" ", ""),
+        img: coctail.strDrinkThumb.replace(' ', ''),
         glass: ruObjCoctail.strGlass,
         strIngredients,
         instructions: ruObjCoctail.strInstructions,
@@ -137,46 +137,44 @@ const allCoctails = {
   namespaced: true,
   state: {
     arr_en: [
-      "a",
-      "b",
-      "c",
-      "d",
-      "e",
-      "f",
-      "g",
-      "h",
-      "i",
-      "j",
-      "k",
-      "l",
-      "m",
-      "n",
-      "o",
-      "p",
-      "q",
-      "r",
-      "s",
-      "t",
-      "u",
-      "v",
-      "w",
-      "x",
-      "y",
-      "z",
+      'a',
+      'b',
+      'c',
+      'd',
+      'e',
+      'f',
+      'g',
+      'h',
+      'i',
+      'j',
+      'k',
+      'l',
+      'm',
+      'n',
+      'o',
+      'p',
+      'q',
+      'r',
+      's',
+      't',
+      'u',
+      'v',
+      'w',
+      'x',
+      'y',
+      'z',
     ],
     currentLetter: 0,
-    allCoctailsList: {},
+    allCoctailsList: [],
     scrollTop: 0,
   },
   getters: {
-    all_coctails_list: ({ allCoctailsList }) => Object.values(allCoctailsList),
+    all_coctails_list: ({ allCoctailsList }) => allCoctailsList,
     scroll_top: ({ scrollTop }) => Number(scrollTop),
   },
   mutations: {
     ADD_COCTAILS_LIST(state, coctailsList) {
-      // state.allCoctailsList = [...state.allCoctailsList, ...coctailsList];
-
-      state.allCoctailsList = { ...state.allCoctailsList, ...coctailsList };
+      state.allCoctailsList = [...state.allCoctailsList, ...coctailsList];
     },
     NEXT_LETTER(state) {
       state.currentLetter += 1;
@@ -186,7 +184,13 @@ const allCoctails = {
     },
     RESET_FAVORITE_IN_LIST(state, { id, value }) {
       // Vue.delete(state.buyListUnactive, id);
-      state.allCoctailsList[id].favorite = value;
+      state.allCoctailsList.forEach((cocktail) => {
+        if (cocktail.id === String(id)) {
+          cocktail.favorite = value;
+        }
+      });
+
+      // state.allCoctailsList[id].favorite = value;
     },
   },
   actions: {
@@ -194,7 +198,7 @@ const allCoctails = {
       try {
         const arr_en = state.arr_en;
         const currentLetter = state.currentLetter;
-        commit("NEXT_LETTER");
+        commit('NEXT_LETTER');
 
         const response = await axios
           .get(`/search.php?f=${arr_en[currentLetter]}`)
@@ -202,21 +206,16 @@ const allCoctails = {
 
         const normalArray = await normalizationListCoctails(response);
 
-        const objNormalArray = normalArray.reduce((acc, cocktail) => {
-          acc[cocktail.id] = cocktail;
-          return acc;
-        }, {});
-
-        commit("ADD_COCTAILS_LIST", objNormalArray);
+        commit('ADD_COCTAILS_LIST', normalArray);
       } catch (err) {
         console.log(err);
       }
     },
     setScrollTop({ commit }, value) {
-      commit("SET_SCROLL_TOP", value);
+      commit('SET_SCROLL_TOP', value);
     },
     resetFavoriteInList({ commit }, objData) {
-      commit("RESET_FAVORITE_IN_LIST", objData);
+      commit('RESET_FAVORITE_IN_LIST', objData);
     },
   },
 };

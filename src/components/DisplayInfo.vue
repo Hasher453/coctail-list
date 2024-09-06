@@ -12,7 +12,7 @@
         </div>
       </div>
       <div class="dispaly__main-btn d-flex">
-        <router-link class="close-button" :to="{ name: get_from.name }"
+        <router-link class="close-button" :to="lastPath"
           >X
         </router-link>
         <div
@@ -117,6 +117,9 @@ export default {
         return this.coctail_info.img;
       }
     },
+    lastPath(){
+      return String(this.get_from.fullPath)
+    }
   },
   async created() {
     const id = this.$route.params.id;

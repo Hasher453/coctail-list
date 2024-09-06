@@ -1,17 +1,16 @@
 <template>
   <div class="dispaly">
-    <div class="dispaly__title">Вы находитесь в категории: все коктейли.</div>
-    <div class="dispaly__list" @scroll="scroll" ref="dispalyList">
-      <div
-        class="card"
-        v-for="(card, i) in all_coctails_list"
-        :key="i"
-        ref="card"
-      >
+    <div class="dispaly__title">
+      Вы производите поиск по категории: {{categorySearch}}.
+    </div>
+    <div class="dispaly__list" ref="dispalyList" v-if="!coctails_list[0].err">
+      <div class="card" v-for="(card, i) in coctails_list" :key="i" ref="card">
         <div class="card__img">
           <img :src="card.img" alt="" />
         </div>
-        <div class="card__name"><span>{{ card.name }} </span></div>
+        <div class="card__name">
+          <span>{{ card.name }} </span>
+        </div>
         <div class="card__brn-container">
           <!-- <div class="card__learn-more">Узнать больше</div> -->
 
@@ -38,62 +37,67 @@
         </div>
       </div>
     </div>
+    <div class="card" v-if="coctails_list[0].err">
+      К сожалению поиск вашего коктейля завершился неудачно, проверьте
+      правописание.
+    </div>
   </div>
 </template>
 
 <script>
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters } from 'vuex';
 
 export default {
-  name: "Display",
-  data: () => ({
-    lastCard: null,
-    usedСoordinates: [],
-  }),
+  name: 'Display',
+  data: () => ({}),
   props: {},
   methods: {
-    ...mapActions("allCoctails", [
-      "fetchListCoctails",
-      "setScrollTop",
-      "resetFavoriteInList",
+    ...mapActions('searchByCategory', [
+      'fetchCoctailsByName',
+      'fetchCoctailsByIngredient',
+      'resetFavoriteInLBC',
     ]),
-    ...mapActions("favorites", [
-      "addItemInList",
-      "resetLocalStorage",
-      "deleteItemInList",
+    ...mapActions('favorites', [
+      'addItemInList',
+      'resetLocalStorage',
+      'deleteItemInList',
     ]),
-    async scroll() {
-      const valueScrollTop = this.$refs.dispalyList.scrollTop;
-      this.setScrollTop(valueScrollTop);
 
-      const dispalyList = this.$refs.dispalyList;
-      if (
-        dispalyList.scrollTop + dispalyList.clientHeight >=
-        dispalyList.scrollHeight
-      ) {
-        await this.fetchListCoctails();
-      }
-    },
     addItemInFC(item) {
       this.addItemInList(item);
       this.resetLocalStorage();
-      this.resetFavoriteInList({ id: item.id, value: true });
+      this.resetFavoriteInLBC({ id: item.id, value: true });
     },
     deleteItemInFC(item) {
-      this.resetFavoriteInList({ id: Number(item.id), value: false });
+      this.resetFavoriteInLBC({ id: Number(item.id), value: false });
       this.deleteItemInList(Number(item.id));
       this.resetLocalStorage();
     },
   },
   computed: {
-    ...mapGetters("allCoctails", ["all_coctails_list", "scroll_top"]),
+    ...mapGetters('searchByCategory', ['coctails_list']),
+    categorySearch() {
+      const nameCategory = this.$route.params.nameCategory;
+      if (nameCategory === 'name')
+        return "название"
+      if (nameCategory === 'ingredient')
+        return "ингридиент"
+    },
   },
   async mounted() {
-    //установка скрола
-    this.$refs.dispalyList.scrollTop = this.scroll_top;
-    if (this.all_coctails_list.length !== 0) return;
-    await this.fetchListCoctails();
-    this.lastCard = this.$refs.card[this.$refs.card.length - 4];
+    if (this.coctails_list.length !== 0) return;
+    /*
+    decodeURIComponent()
+    {nameCategory: 'name', search: '%D0%A0%D0%BE%D0%BC'}
+    */
+    const nameCategory = this.$route.params.nameCategory;
+    const search = decodeURIComponent(this.$route.params.search);
+    if (nameCategory === 'name') {
+      await this.fetchCoctailsByName(search);
+    }
+    if (nameCategory === 'ingredient') {
+      await this.fetchCoctailsByIngredient(search);
+    }
   },
 };
 </script>

@@ -1,15 +1,22 @@
 <template>
   <div class="sidebar">
     <div class="select__container">
-      <select class="select__category">
+      <select class="select__category" v-model="select">
         <option class="select__option">Поиск по названию</option>
         <option class="select__option">Поиск по ингредиенту</option>
       </select>
       <img src="../assets/arrow-down-svgrepo-com.svg" alt="" />
     </div>
     <div class="search__container">
-      <input type="text" placeholder=" Название коктейля" />
-      <button>
+      <input
+        type="text"
+        placeholder="Введите запрос"
+        v-model="search"
+        @keyup.enter="searchCocktail"
+        :class="{ 'input-color-red': emptyInput }"
+        @click="clickInput"
+      />
+      <button @click="searchCocktail">
         <img src="../assets/search-magnifying-glass-svgrepo-com.svg" alt="" />
       </button>
     </div>
@@ -45,9 +52,62 @@
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex';
+
 export default {
-  name: "Sidebar",
-  props: {},
+  name: 'Sidebar',
+  data: () => ({
+    select: 'Поиск по названию',
+    search: '',
+    emptyInput: false,
+  }),
+  methods: {
+    ...mapActions('searchByCategory', [
+      'fetchCoctailsByName',
+      'fetchCoctailsByIngredient',
+    ]),
+
+    async searchCocktail() {
+      if (this.search === '') {
+        this.emptyInput = true;
+        return;
+      }
+      if (this.categorySearch === 'name') {
+        await this.fetchCoctailsByName(this.search);
+        this.$router.replace({
+          name: 'displayByCategory',
+          params: {
+            nameCategory: encodeURIComponent(this.categorySearch),
+            search: encodeURIComponent(this.search),
+          },
+        }).catch(() => {});
+      }
+      if (this.categorySearch === 'ingredient') {
+        await this.fetchCoctailsByIngredient(this.search);
+        this.$router.replace({
+          name: 'displayByCategory',
+          params: {
+            nameCategory: encodeURIComponent(this.categorySearch),
+            search: encodeURIComponent(this.search),
+          },
+        }).catch(() => {});
+      }
+    },
+    clickInput() {
+      this.emptyInput = false;
+    },
+  },
+  computed: {
+    categorySearch() {
+      if (this.select === 'Поиск по названию') return 'name';
+      if (this.select === 'Поиск по ингредиенту') return 'ingredient';
+    },
+  },
+  watch: {
+    search: function (val) {
+      this.emptyInput = false;
+    },
+  },
 };
 </script>
 
@@ -128,5 +188,6 @@ a
   opacity: 1;
   margin-top: 20px
 
-
+.input-color-red::placeholder
+  color #ed4949
 </style>
